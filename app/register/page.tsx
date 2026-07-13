@@ -1,74 +1,67 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
-import { createBlog, State } from "../../actions/blogs";
-import { useRouter } from "next/navigation";
-import { useNotification } from "../../components/NotificationContext";
+import { useActionState } from "react";
+import { registerUser, State } from "../actions/users";
 
-const NewBlog = () => {
+export default function RegisterPage() {
   const initialState: State = {
     errors: {},
     values: {
-      title: "",
-      author: "",
-      url: "",
-      id: null,
+      username: "",
+      name: "",
+      password: "",
+      passwordConfirm: "",
     },
-    success: false,
   };
-  const [state, formAction] = useActionState(createBlog, initialState);
-  const { showNotification } = useNotification();
-  const router = useRouter();
-  useEffect(() => {
-    if (state.success) {
-      showNotification("blog created");
-      router.push("/blogs");
-    }
-  }, [state, showNotification, router]);
+  const [state, formAction] = useActionState(registerUser, initialState);
   return (
     <div>
-      <h2>Create a new blog</h2>
+      <h2>Register</h2>
       <form action={formAction}>
         <div>
           <label>
-            Title
+            Username
             <input
               type="text"
-              name="title"
+              name="username"
               required
-              defaultValue={state.values?.title}
+              defaultValue={state.values?.username}
               className="mt-1 px-3 py-1 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </label>
         </div>
         <div>
           <label>
-            Author
+            Name
             <input
               type="text"
-              name="author"
-              defaultValue={state.values?.author}
+              name="name"
+              required
+              defaultValue={state.values?.name}
               className="mt-1 px-3 py-1 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </label>
         </div>
         <div>
           <label>
-            URL
+            Password
             <input
-              type="text"
-              name="url"
-              defaultValue={state.values?.url}
+              type="password"
+              name="password"
+              required
+              defaultValue={state.values?.password}
               className="mt-1 px-3 py-1 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </label>
         </div>
         <div>
           <label>
-            Likes
+            Confirm Password
             <input
-              type="number"
-              name="likes"
+              type="password"
+              name="passwordConfirm"
+              required
+              defaultValue={state.values?.passwordConfirm}
               className="mt-1 px-3 py-1 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </label>
@@ -76,19 +69,21 @@ const NewBlog = () => {
         <button
           type="submit"
           className="bg-gray-800 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          data-testid="create-blog-button"
+          data-testid="register-button"
         >
-          Create
+          Register
         </button>
         {state.errors &&
-          Object.values(state.errors).map((errorText, index) => (
-            <p key={index} style={{ color: "red" }}>
+          Object.entries(state.errors).map(([field, errorText]) => (
+            <p
+              key={field}
+              data-testid={`${field}-error`}
+              style={{ color: "red" }}
+            >
               {errorText}
             </p>
           ))}
       </form>
     </div>
   );
-};
-
-export default NewBlog;
+}

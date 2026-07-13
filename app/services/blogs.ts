@@ -1,49 +1,46 @@
-const blogs = [
-  {
-    id: 1,
-    title: "Wprowadzenie do magii Next.js",
-    author: "Jan Kowalski",
-    url: "https://jankowalski.blog/nextjs",
-    likes: 15,
-  },
-  {
-    id: 2,
-    title: "Jak przetrwać instalację npm na wolnym łączu",
-    author: "Ty",
-    url: "https://twojblog.dev/npm-survival",
-    likes: 9001,
-  },
-  {
-    id: 3,
-    title: "Server Components dla opornych",
-    author: "Anna Nowak",
-    url: "https://annanowak.pl/rsc",
-    likes: 42,
-  },
-];
+import { eq, ilike, sql } from "drizzle-orm";
+import { db } from "../../db";
+import { blogs } from "../../db/schema";
+import { useSession } from "next-auth/react";
 
-let nextId = 4;
-
-export const getBlogs = () => {
-  return blogs;
+export const getBlogs = (searchQuery?: string) => {
+  if (searchQuery) {
+    return db.query.blogs.findMany({
+      where: ilike(blogs.title, `%${searchQuery}%`),
+    });
+  }
+  return db.query.blogs.findMany();
 };
 
-export const addBlog = (
+export const addBlog = async (
   title: string,
   author: string,
   url: string,
   likes: number,
+  id: number,
 ) => {
-  blogs.push({ id: nextId++, title, author, url, likes });
+  await db.insert(blogs).values({ title, author, url, likes, userId: id });
 };
 
-export const getBlogById = (id: number) => {
-  return blogs.find((blog) => blog.id === id);
+export const getBlogById = async (id: number) => {
+  return db.query.blogs.findFirst({
+    where: eq(blogs.id, id),
+  });
 };
 
-export const likeBlog = (id: number) => {
-  const blog = getBlogById(id);
+export const likeBlog = async (id: number) => {
+  const blog = await getBlogById(id);
   if (blog) {
-    blog.likes++;
+    await db
+      .update(blogs)
+      .set({ likes: blog.likes + 1 })
+      .where(eq(blogs.id, id));
   }
+};
+
+export const getBlogsByUser = async (user_id: number) => {
+  const user_blogs = await db.query.blogs.findMany({
+    where: eq(blogs.userId, user_id),
+  });
+  return user_blogs;
 };

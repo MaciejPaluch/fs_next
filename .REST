@@ -1,0 +1,7 @@
+GET http://localhost:3000/api/me
+Content-Type: application/json
+Authorization: Bearer 0d906cce-bd9b-485a-96f6-4b7fa027327f
+
+{
+  "content": "To jest moja notatka testowa",
+}

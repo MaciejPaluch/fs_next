@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Opcjonalne: Pozwala na używanie rozszerzenia .mdx dla stron
+  pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
 };
 
-export default nextConfig;
+const withMDX = createMDX({
+  // Tutaj możesz dodać wtyczki do markdowna, jeśli potrzebujesz
+});
+
+export default withMDX(nextConfig);
